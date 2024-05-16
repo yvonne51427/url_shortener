@@ -1,0 +1,21 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm URL</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>This URL already exists</h2>
+        <p>The URL you entered already exists. Do you want to use the existing short URL or create a new one?</p>
+        <form method="post" action="{% url 'confirm_existing_url' %}">
+            {% csrf_token %}
+            <input type="hidden" name="original_url" value="{{ existing_short_url.original_url }}">
+            <button type="submit" name="action" value="use_existing">Use Existing</button>
+            <button type="submit" name="action" value="create_new">Create New</button>
+        </form>
+    </div>
+</body>
+</html>

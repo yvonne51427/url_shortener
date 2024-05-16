@@ -1,0 +1,22 @@
+{% load static %}
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Sign In</h2>
+        <h3>Sign in using:</h3>
+        <ul>
+            {% get_providers as socialaccount_providers %}
+            {% for provider in socialaccount_providers %}
+                <li><a href="{% provider_login_url provider.id %}">{{ provider.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
