@@ -24,6 +24,7 @@ urlpatterns = [
     path('accounts/login/', views.custom_login, name='account_login'),
     path('accounts/', include('allauth.urls')),
     path('', views.redirect_to_login, name='home'),
+    path('short-url/', include('short_url.urls')),
     path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('data-deletion/', views.data_deletion, name='data_deletion'),
