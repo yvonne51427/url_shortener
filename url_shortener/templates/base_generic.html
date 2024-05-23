@@ -1,7 +1,9 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>URL Shortener</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <header>
@@ -11,10 +13,9 @@
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'create_short_url' %}">Create Short URL</a></li>
                     <li><a href="{% url 'url_stats' %}">Your URLs</a></li>
-                    <li><a href="{% url 'account_logout' %}">Logout</a></li>
+                    <li><a href="{% url 'account_logout' %}?next={% url 'account_login' %}">Logout</a></li>
                 {% else %}
                     <li><a href="{% url 'account_login' %}">Login</a></li>
-                    <li><a href="{% url 'account_signup' %}">Signup</a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -25,3 +26,6 @@
     </main>
 </body>
 </html>
+
+<!-- This is a base template that includes the page header, navigation bar, and main content block. -->
+<!-- All other pages will extend this template. -->
