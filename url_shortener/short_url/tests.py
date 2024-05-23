@@ -10,12 +10,13 @@ class ShortUrlTests(TestCase):
         self.client.login(username='testuser', password='12345')
 
     def test_create_short_url(self):
-        response = self.client.post('/create/', {'original_url': 'http://example.com'})
-        self.assertEqual(response.status_code, 302)
+        response = self.client.post('/api/short-urls/', {'original_url': 'http://example.com'})
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(ShortUrl.objects.count(), 1)
 
     def test_redirect_short_url(self):
         short_url = ShortUrl.objects.create(user=self.user, original_url='http://example.com')
-        response = self.client.get(f'/{short_url.short_hash}/')
+        response = self.client.get(f'/api/r/{short_url.short_hash}/')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(URLClick.objects.count(), 1)
+

@@ -1,9 +1,10 @@
 from django.urls import path
-from . import views
+from .views import ShortUrlListCreateAPIView, ShortUrlStatsAPIView, RedirectShortUrlAPIView, ShortUrlCreateView, ShortUrlView
 
 urlpatterns = [
-    path('create/', views.create_short_url, name='create_short_url'),
-    path('stats/', views.url_stats, name='url_stats'),
-    path('confirm/', views.confirm_existing_url, name='confirm_existing_url'),
-    path('r/<str:short_hash>/', views.redirect_short_url, name='redirect_short_url'),
+    path('short-urls/', ShortUrlListCreateAPIView.as_view(), name='short_url_list_create'),
+    path('short-urls/<int:pk>/stats/', ShortUrlStatsAPIView.as_view(), name='short_url_stats'),
+    path('r/<str:short_hash>/', RedirectShortUrlAPIView.as_view(), name='redirect_short_url'),
+    path('create/', ShortUrlCreateView.as_view(), name='create_short_url'),
+    path('stats/', ShortUrlView.as_view(), name='url_stats'), 
 ]

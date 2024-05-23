@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -41,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # required by allauth
     'django.contrib.sites',
+
+    #RESTful API
+    'rest_framework',
 
     # allauth apps
     'allauth',
@@ -100,7 +104,7 @@ DATABASES = {
         'USER': 'url_shortener_user',
         'PASSWORD': 'password',
         'HOST': 'localhost',
-        'PORT': '3306',
+        'PORT': '3307',
     }
 }
 
@@ -157,14 +161,23 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 
-LOGIN_REDIRECT_URL = '/short_url/create/'
+LOGIN_REDIRECT_URL = '/create/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Disable local account registration and login
-ACCOUNT_EMAIL_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+#ACCOUNT_EMAIL_REQUIRED = False
+#ACCOUNT_EMAIL_VERIFICATION = 'none'
+#ACCOUNT_USERNAME_REQUIRED = False
+#ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
+#ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
+
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+LOGIN_REDIRECT_URL = '/create/'
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -177,8 +190,8 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'APP': {
-            'client_id': '1021189136617-03ek9sl4urcg7en6okm6h1ipr468j8at.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
             'key': ''
         }
     },
@@ -203,8 +216,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'VERIFIED_EMAIL': False,
         'VERSION': 'v7.0',
         'APP': {
-            'client_id': '411117978506647',
-            'secret': '9242675435cf2174a0078872be9489a6',
+            'client_id': os.getenv('FACEBOOK_APP_ID'), 
+            'secret': os.getenv('FACEBOOK_APP_SECRET'),
             'key': ''
         }
     }

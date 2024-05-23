@@ -1,57 +1,56 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from .models import ShortUrl, URLClick
-from .forms import ShortUrlForm
-from django.contrib.auth.decorators import login_required
+from .serializers import ShortUrlSerializer, URLClickSerializer
+from django.http import JsonResponse
 
-@login_required
-def create_short_url(request):
-    if request.method == 'POST':
-        form = ShortUrlForm(request.POST)
-        if form.is_valid():
-            original_url = form.cleaned_data['original_url']
-            existing_short_url = ShortUrl.objects.filter(original_url=original_url, user=request.user).first()
-            if existing_short_url:
-                context = {
-                    'form': form,
-                    'existing_short_url': existing_short_url,
-                }
-                return render(request, 'short_url/confirm_existing_url.html', context)
-            else:
-                short_url = form.save(commit=False)
-                short_url.user = request.user
-                short_url.save()
-                return redirect('url_stats')
-    else:
-        form = ShortUrlForm()
-    return render(request, 'short_url/create_short_url.html', {'form': form})
+class ShortUrlListCreateAPIView(generics.ListCreateAPIView):
+    queryset = ShortUrl.objects.all()
+    serializer_class = ShortUrlSerializer
+    permission_classes = [IsAuthenticated]
 
-@login_required
-def confirm_existing_url(request):
-    if request.method == 'POST':
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ShortUrlStatsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        short_url = get_object_or_404(ShortUrl, pk=pk)
+        clicks = URLClick.objects.filter(short_url=short_url)
+        serializer = URLClickSerializer(clicks, many=True)
+        return Response(serializer.data)
+
+class RedirectShortUrlAPIView(APIView):
+    def get(self, request, short_hash):
+        short_url = get_object_or_404(ShortUrl, short_hash=short_hash)
+        URLClick.objects.create(short_url=short_url, ip_address=request.META.get('REMOTE_ADDR', ''))
+        short_url.click_count += 1
+        short_url.save()
+        return redirect(short_url.original_url)
+
+class ShortUrlCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        short_urls = ShortUrl.objects.filter(user=request.user)
+        return render(request, 'short_url/create_short_url.html', {'short_urls': short_urls})
+
+    def post(self, request):
         original_url = request.POST.get('original_url')
-        action = request.POST.get('action')
-        if action == 'use_existing':
-            short_url = ShortUrl.objects.get(original_url=original_url, user=request.user)
-            return redirect('url_stats')
-        elif action == 'create_new':
-            short_url = ShortUrl(original_url=original_url, user=request.user)
-            short_url.short_hash = short_url.generate_unique_short_hash()
-            short_url.save()
-            return redirect('url_stats')
-    return redirect('create_short_url')
+        existing_short_url = ShortUrl.objects.filter(original_url=original_url, user=request.user).first()
+        if existing_short_url:
+            return JsonResponse({'message': 'Short URL already exists', 'short_hash': existing_short_url.short_hash})
+        short_url = ShortUrl(user=request.user, original_url=original_url)
+        short_url.save()
+        return JsonResponse({'message': 'Short URL created successfully', 'short_hash': short_url.short_hash})
 
-@login_required
-def url_stats(request):
-    short_urls = ShortUrl.objects.filter(user=request.user)
-    context = {
-        'short_urls': short_urls,
-    }
-    return render(request, 'short_url/url_stats.html', context)
+class ShortUrlView(APIView):
+    permission_classes = [IsAuthenticated]
 
-def redirect_short_url(request, short_hash):
-    short_url = get_object_or_404(ShortUrl, short_hash=short_hash)
-    URLClick.objects.create(short_url=short_url, ip_address=request.META['REMOTE_ADDR'])
-    short_url.click_count += 1
-    short_url.save()
-    return redirect(short_url.original_url)
+    def get(self, request):
+        short_urls = ShortUrl.objects.filter(user=request.user)
+        return render(request, 'short_url/url_stats.html', {'short_urls': short_urls})
