@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,13 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*f@&63rhxa)9_96c(hwv)rj&*vf4!x+3@&*^8mk4e&x^3lw^ps'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['2a61-36-227-176-115.ngrok-free.app', '127.0.0.1', 'localhost']
-CSRF_TRUSTED_ORIGINS = ['https://2a61-36-227-176-115.ngrok-free.app',]
+ALLOWED_HOSTS = ['2a61-36-227-176-115.ngrok-free.app', '127.0.0.1', 'localhost', 'gauth-423110.de.r.appspot.com']
+CSRF_TRUSTED_ORIGINS = ['https://2a61-36-227-176-115.ngrok-free.app', 'https://gauth-423110.de.r.appspot.com']
 
 
 
@@ -97,6 +100,17 @@ WSGI_APPLICATION = 'url_shortener.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': os.getenv('DB_NAME'),
+#        'USER': os.getenv('DB_USER'),
+#        'PASSWORD': os.getenv('DB_PASSWORD'),
+#        'HOST': '35.229.182.71',
+#        'PORT': '3306',
+#    }
+#}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -142,10 +156,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -177,6 +190,10 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+# Login may proceed directly on a GET request instead of waiting for a POST request
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
 LOGIN_REDIRECT_URL = '/create/'
 
 # Provider specific settings
@@ -197,24 +214,8 @@ SOCIALACCOUNT_PROVIDERS = {
     },
     'facebook': {
         'METHOD': 'oauth2',
-        'SCOPE': ['email', 'public_profile'],
-        'FIELDS': [
-            'id',
-            'email',
-            'name',
-            'first_name',
-            'last_name',
-            'verified',
-            'locale',
-            'timezone',
-            'link',
-            'gender',
-            'updated_time'
-        ],
-        'EXCHANGE_TOKEN': True,
-        'LOCALE_FUNC': lambda request: 'en_US',
+        'SCOPE': ['email'],
         'VERIFIED_EMAIL': False,
-        'VERSION': 'v7.0',
         'APP': {
             'client_id': os.getenv('FACEBOOK_APP_ID'), 
             'secret': os.getenv('FACEBOOK_APP_SECRET'),
