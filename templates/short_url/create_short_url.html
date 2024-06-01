@@ -1,0 +1,45 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <div class="container">
+        <h2>Create Short URL</h2>
+        <form id="create-url-form">
+            {% csrf_token %}
+            <input type="text" id="original_url" name="original_url" placeholder="Enter the URL" required>
+            <button type="submit">Create</button>
+        </form>
+        <h3>Your Short URLs</h3>
+        <ul>
+            {% for short_url in short_urls %}
+                <li>{{ short_url.original_url }} -> <a href="{% url 'redirect_short_url' short_url.short_hash %}">{{ short_url.short_hash }}</a> (Clicks: {{ short_url.click_count }})</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#create-url-form').on('submit', function(event){
+                event.preventDefault();
+                const original_url = $('#original_url').val();
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'create_short_url' %}",
+                    data: {
+                        'original_url': original_url,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response){
+                        alert('Short URL created successfully!');
+                        location.reload();
+                    },
+                    error: function(response){
+                        alert('Error creating Short URL');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+<!-- This template provides a form for users to input the original URL to generate a short URL. -->
+<!-- Displayed when users visit /create/ and are authenticated. -->
