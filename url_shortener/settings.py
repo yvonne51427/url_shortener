@@ -29,8 +29,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['2a61-36-227-176-115.ngrok-free.app', '127.0.0.1', 'localhost', 'gauth-423110.de.r.appspot.com']
-CSRF_TRUSTED_ORIGINS = ['https://2a61-36-227-176-115.ngrok-free.app', 'https://gauth-423110.de.r.appspot.com']
+ALLOWED_HOSTS = ['2a61-36-227-176-115.ngrok-free.app',
+                 '127.0.0.1', 'localhost', 
+                 'gauth-423110.de.r.appspot.com', 
+                 'url-shortener-yj44.onrender.com']
+
+CSRF_TRUSTED_ORIGINS = ['https://2a61-36-227-176-115.ngrok-free.app', 
+                        'https://gauth-423110.de.r.appspot.com', 
+                        'https://url-shortener-yj44.onrender.com']
 
 
 
@@ -112,14 +118,7 @@ WSGI_APPLICATION = 'url_shortener.wsgi.application'
 #}
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'url_shortener_db',
-        'USER': 'url_shortener_user',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '3307',
-    }
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 # Password validation
